@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import Navbar from './Navbar'; // Import the new Navbar component
 
 export default function ProfilePage({ savingsTargets = [] }) {
   const location = useLocation();
@@ -36,6 +37,7 @@ export default function ProfilePage({ savingsTargets = [] }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Add the Navbar component at the top */}
       {/* Header with sign out */}
       <div className="relative bg-blue-600 text-white py-8 px-4 mt-4 mb-4 mx-4 rounded-lg max-w-4xl mx-auto">
         {/* Sign out button */}

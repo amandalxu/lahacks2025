@@ -5,6 +5,7 @@ import ProfilePage from './ProfilePage';
 // In SavingsApp.jsx, add this import at the top with other imports:
 import GeminiAIButton from './GeminiAIButton';
 import LoginPage from "./LoginPage";
+import Navbar from './Navbar'; // Import the new Navbar component
 
 function SavingsApp() {
   const location = useLocation()
@@ -194,6 +195,9 @@ function SavingsApp() {
  
   return (
     <div className="p-6 max-w-4xl mx-auto bg-gray-50 min-h-screen">
+      {/* Add the Navbar component at the top */}
+      <Navbar username={username} />
+      
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-blue-600">CHIPS TO SPARE</h1>
         <div className="flex gap-2">
