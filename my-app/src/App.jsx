@@ -58,7 +58,8 @@ function SavingsApp() {
       period: 'monthly',
       percentageOfIncome: '',
       fixedAmount: '',
-      color: '#' + Math.floor(Math.random()*16777215).toString(16)
+      color: '#' + Math.floor(Math.random()*16777215).toString(16),
+      archived: false
     });
     setShowAddForm(false);
   };
@@ -82,11 +83,17 @@ function SavingsApp() {
   const handleAutomaticDeposit = () => {
     // Process automatic deposits based on rules
     const updatedTargets = savingsTargets.map(target => {
-      if (target.type === 'periodic') {
+      if (!target.archived && target.type === 'periodic') {
         let depositAmount = 0;
        
         if (target.percentageOfIncome > 0) {
           depositAmount = (monthlyIncome * target.percentageOfIncome) / 100;
+          // TODO: If target is complete, ask user if they want to archive this target 
+          // and redirect surplus savings to another target, or continue saving towards 
+          // this target
+          if (target.currentAmount + depositAmount >= target.goalAmount) {
+            console.log("Progress towards this savings target is complete! Would you like to archive this target and redirect surplus savings to another target, or would you like to continue saving towards this target?")
+          }
         } else if (target.fixedAmount > 0) {
           depositAmount = target.fixedAmount;
         }
@@ -105,6 +112,28 @@ function SavingsApp() {
   const deleteTarget = (id) => {
     setSavingsTargets(savingsTargets.filter(target => target.id !== id));
   };
+
+  const archiveTarget = (id) => {
+    const updatedTargets = savingsTargets.map(target => 
+      target.id === id ? {
+          ...target,
+          archived: true
+        } : target
+    );
+   
+    setSavingsTargets(updatedTargets);
+  }
+
+  const restoreTarget = (id) => {
+    const updatedTargets = savingsTargets.map(target => 
+      target.id === id ? {
+          ...target,
+          archived: false
+        } : target
+    );
+   
+    setSavingsTargets(updatedTargets);
+  }
  
   const calculateProgress = (target) => {
     return (target.currentAmount / target.goalAmount) * 100;
@@ -315,16 +344,22 @@ function SavingsApp() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {savingsTargets.map((target) => (
+            {savingsTargets.filter(target => !target.archived).map((target) => (
               <div key={target.id} className="bg-white p-4 rounded-lg shadow">
-                <div className="flex justify-between items-start mb-2">
+                <div className="flex justify-between items-start mb-2 hover:*:visible">
                   <h3 className="text-lg font-semibold">{target.name}</h3>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 invisible">
                     <button
                       onClick={() => setDepositTarget(target)}
                       className="text-sm bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600"
                     >
                       Deposit
+                    </button>
+                    <button
+                      onClick={() => archiveTarget(target.id)}
+                      className="text-sm bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-600"
+                    >
+                      Archive
                     </button>
                     <button
                       onClick={() => deleteTarget(target.id)}
@@ -375,7 +410,7 @@ function SavingsApp() {
       {savingsTargets.length > 0 && (
         <div className="p-4 bg-white rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">Savings Summary</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="p-3 bg-blue-100 rounded">
               <p className="text-sm text-blue-800">Total Saved</p>
               <p className="text-2xl font-bold">
@@ -398,8 +433,66 @@ function SavingsApp() {
               <p className="text-sm text-purple-800">Active Targets</p>
               <p className="text-2xl font-bold">{savingsTargets.length}</p>
             </div>
+            <div className="p-3 bg-orange-100 rounded">
+              <p className="text-sm text-orange-800">Completed Targets</p>
+              <p className="text-2xl font-bold">
+                {savingsTargets.filter(target => target.currentAmount >= target.goalAmount).length}
+              </p>
+            </div>
           </div>
         </div>
+      )}
+     
+      {/* Archived Targets Dashboard */}
+      {savingsTargets.filter(target => target.archived).length > 0 && (
+        <div>
+          <div className="my-8">
+            <div className="flex mb-4">
+            <h2 className="text-xl font-semibold">Your Archived Targets</h2>
+          </div>
+       
+          {/* Targets List */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {savingsTargets.filter(target => target.archived).map(target => (
+              <div key={target.id} className="bg-white p-4 rounded-lg shadow">
+                <div className="flex justify-between items-start mb-2 hover:*:visible">
+                  <h3 className="text-lg font-semibold">{target.name}</h3>
+                  <div className="flex gap-2 invisible">
+                    <button
+                      onClick={() => restoreTarget(target.id)}
+                      className="text-sm bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600"
+                    >
+                      Restore
+                    </button>
+                    <button
+                      onClick={() => deleteTarget(target.id)}
+                      className="text-sm bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+               
+                <div className="mb-2">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Progress: {calculateProgress(target).toFixed(1)}%</span>
+                    <span>${target.currentAmount.toFixed(2)} / ${target.goalAmount.toFixed(2)}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div
+                      className="h-2.5 rounded-full"
+                      style={{
+                        width: `${Math.min(calculateProgress(target), 100)}%`,
+                        backgroundColor: target.color
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
       )}
     </div>
   );
