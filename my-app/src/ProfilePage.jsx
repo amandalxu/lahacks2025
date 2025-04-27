@@ -36,11 +36,11 @@ export default function ProfilePage({ savingsTargets = [] }) {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Add the Navbar component at the top */}
       <Navbar username={username} />
       {/* Header with sign out */}
-      <div className="relative bg-blue-600 text-white py-8 px-4 mt-4 mb-4 mx-4 rounded-lg max-w-4xl mx-auto">
+      <div className="relative bg-blue-600 text-white py-8 px-4 mt-4 mb-4 mx-4 rounded-lg w-4xl mx-auto">
         {/* Sign out button */}
         <button
           onClick={handleLogout}
@@ -56,7 +56,7 @@ export default function ProfilePage({ savingsTargets = [] }) {
       </div>
 
       {/* Content area with flexbox layout */}
-      <div className="p-6 max-w-4xl mx-auto bg-white min-h-screen">
+      <div className="p-6 max-w-4xl mx-auto bg-white grow">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-blue-600">Profile Page</h1>
         </div>
