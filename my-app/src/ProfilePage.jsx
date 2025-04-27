@@ -27,17 +27,16 @@ export default function ProfilePage({ savingsTargets = [] }) {
     <div className="min-h-screen bg-gray-50">
       {/* Header with sign out */}
       
-       <div className="absolute top-14 right-60 z-10">
-          <button className="bg-white py-2 px-4 rounded-lg shadow border hover:bg-gray-100">
-            Sign out →
-          </button>
-        </div>
-      
+      <div className="relative bg-blue-600 text-white py-8 px-4 mt-4 mb-4 mx-4 rounded-lg max-w-4xl mx-auto">
+  {/* Sign out button absolutely positioned */}
+  <button className="absolute top-8 right-4 bg-white text-blue-600 font-semibold py-2 px-4 rounded-lg shadow border hover:bg-gray-100 whitespace-nowrap">
+    Sign out →
+  </button>
 
-      {/* Page title */}
-      <div className="bg-blue-600 text-white py-8 px-4 mt-6 mb-4 mx-4 rounded-lg max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-center">Amy, let's save!</h1>
-      </div>
+  {/* Centered Title */}
+  <h1 className="text-4xl font-bold text-center">Amy, let's save!</h1>
+</div>
+
 
       {/* Content area with flexbox layout */}
       <div className="p-6 max-w-4xl mx-auto bg-white min-h-screen">
