@@ -30,6 +30,15 @@ function SavingsApp() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [depositTarget, setDepositTarget] = useState(null);
   const [depositAmount, setDepositAmount] = useState('');
+  const [editTarget, setEditTarget] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    goalAmount: '',
+    type: 'one-time',
+    period: 'monthly',
+    percentageOfIncome: '',
+    fixedAmount: '',
+  });
  
   // Save to localStorage whenever state changes
   useEffect(() => {
@@ -111,6 +120,38 @@ function SavingsApp() {
  
   const calculateProgress = (target) => {
     return (target.currentAmount / target.goalAmount) * 100;
+  };
+
+  const handleEditClick = (target) => {
+    setEditTarget(target);
+    setEditFormData({
+      name: target.name,
+      goalAmount: target.goalAmount,
+      type: target.type,
+      period: target.period,
+      percentageOfIncome: target.percentageOfIncome || '',
+      fixedAmount: target.fixedAmount || '',
+    });
+  };
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+    
+    const updatedTarget = {
+      ...editTarget,
+      name: editFormData.name,
+      goalAmount: parseFloat(editFormData.goalAmount),
+      type: editFormData.type,
+      period: editFormData.period,
+      percentageOfIncome: editFormData.percentageOfIncome ? parseFloat(editFormData.percentageOfIncome) : 0,
+      fixedAmount: editFormData.fixedAmount ? parseFloat(editFormData.fixedAmount) : 0,
+    };
+    
+    setSavingsTargets(savingsTargets.map(target => 
+      target.id === editTarget.id ? updatedTarget : target
+    ));
+    
+    setEditTarget(null);
   };
  
   return (
@@ -272,7 +313,7 @@ function SavingsApp() {
 
         {/* Deposit Modal */}
         {depositTarget && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center p-4">
             <div className="bg-white p-6 rounded-lg max-w-md w-full">
               <h3 className="text-xl font-semibold mb-4">
                 Deposit to {depositTarget.name}
@@ -312,6 +353,107 @@ function SavingsApp() {
           </div>
         )}
 
+        {/* Edit Target Modal */}
+        {editTarget && (
+        <div className="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex items-center justify-center p-4">
+            <div className="bg-white p-6 rounded-lg max-w-md w-full">
+              <h3 className="text-xl font-semibold mb-4">Edit {editTarget.name}</h3>
+              <form onSubmit={handleSaveEdit}>
+                <div className="grid grid-cols-1 gap-4 mb-4">
+                  <div>
+                    <label className="block mb-1">Target Name</label>
+                    <input
+                      type="text"
+                      value={editFormData.name}
+                      onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                      className="w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block mb-1">Goal Amount</label>
+                    <input
+                      type="number"
+                      value={editFormData.goalAmount}
+                      onChange={(e) => setEditFormData({...editFormData, goalAmount: e.target.value})}
+                      className="w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block mb-1">Type</label>
+                    <select
+                      value={editFormData.type}
+                      onChange={(e) => setEditFormData({...editFormData, type: e.target.value})}
+                      className="w-full p-2 border rounded"
+                    >
+                      <option value="one-time">One-time Goal</option>
+                      <option value="periodic">Periodic Saving</option>
+                    </select>
+                  </div>
+                  
+                  {editFormData.type === 'periodic' && (
+                    <>
+                      <div>
+                        <label className="block mb-1">Period</label>
+                        <select
+                          value={editFormData.period}
+                          onChange={(e) => setEditFormData({...editFormData, period: e.target.value})}
+                          className="w-full p-2 border rounded"
+                        >
+                          <option value="weekly">Weekly</option>
+                          <option value="monthly">Monthly</option>
+                          <option value="yearly">Yearly</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="block mb-1">% of Monthly Income</label>
+                        <input
+                          type="number"
+                          value={editFormData.percentageOfIncome}
+                          onChange={(e) => setEditFormData({...editFormData, percentageOfIncome: e.target.value, fixedAmount: ''})}
+                          className="w-full p-2 border rounded"
+                          placeholder="Enter percentage"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block mb-1">Or Fixed Amount</label>
+                        <input
+                          type="number"
+                          value={editFormData.fixedAmount}
+                          onChange={(e) => setEditFormData({...editFormData, fixedAmount: e.target.value, percentageOfIncome: ''})}
+                          className="w-full p-2 border rounded"
+                          placeholder="Enter fixed amount"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditTarget(null)}
+                    className="py-2 px-4 border rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+       
         {/* Targets List */}
         {savingsTargets.length === 0 ? (
           <div className="text-center p-8 bg-white rounded-lg shadow">
@@ -326,6 +468,12 @@ function SavingsApp() {
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-lg font-semibold">{target.name}</h3>
                   <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEditClick(target)}
+                      className="text-sm bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600"
+                    >
+                      Edit
+                    </button>
                     <button
                       onClick={() => setDepositTarget(target)}
                       className="text-sm bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600"
@@ -416,7 +564,7 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<SavingsApp />} />
-        <Route path="/Profile" element={< ProfilePage />} />
+        <Route path="/Profile" element={<ProfilePage />} />
       </Routes>
     </Router>
   );
