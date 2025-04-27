@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import ProfilePage from './ProfilePage';
 
-export default function App() {
+function SavingsApp() {
   const [savingsTargets, setSavingsTargets] = useState(() => {
     const savedTargets = localStorage.getItem('savingsTargets');
     return savedTargets ? JSON.parse(savedTargets) : [];
@@ -110,7 +112,12 @@ export default function App() {
  
   return (
     <div className="p-6 max-w-4xl mx-auto bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">Virtual Piggy Bank</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-blue-600">Virtual Piggy Bank</h1>
+        <Link to="/Profile" className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+          Profile
+        </Link>
+      </div>
      
       {/* Income Section */}
       <div className="mb-8 p-4 bg-white rounded-lg shadow">
@@ -354,5 +361,16 @@ export default function App() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<SavingsApp />} />
+        <Route path="/Profile" element={< ProfilePage />} />
+      </Routes>
+    </Router>
   );
 }
