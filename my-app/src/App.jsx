@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { useNavigate, useLocation, BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import ProfilePage from './ProfilePage';
 
 // In SavingsApp.jsx, add this import at the top with other imports:
 import GeminiAIButton from './GeminiAIButton';
+import LoginPage from "./LoginPage";
 
 function SavingsApp() {
+  const location = useLocation()
+  const username = location.state?.username || "User";
+  const navigate = useNavigate(); // 👈
+
   const [savingsTargets, setSavingsTargets] = useState(() => {
     const savedTargets = localStorage.getItem('savingsTargets');
     return savedTargets ? JSON.parse(savedTargets) : [];
@@ -160,12 +165,19 @@ function SavingsApp() {
         <h1 className="text-3xl font-bold text-blue-600">Virtual Piggy Bank</h1>
         <div className="flex gap-2">
           <GeminiAIButton savingsTargets={savingsTargets} monthlyIncome={monthlyIncome} />
-          <Link
+          {/* <Link
             to="/Profile"
             className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
           >
             Profile
-          </Link>
+          </Link> */}
+
+          <button
+              onClick={() => navigate("/Profile", { state: { username } })}
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+            >
+              Profile
+            </button>
         </div>
       </div>
 
@@ -563,8 +575,9 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<SavingsApp />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/Profile" element={<ProfilePage />} />
+        <Route path="/SavingsApp" element={<SavingsApp />} />
       </Routes>
     </Router>
   );

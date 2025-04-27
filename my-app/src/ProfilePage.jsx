@@ -1,7 +1,11 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 
 export default function ProfilePage({ savingsTargets = [] }) {
+  const location = useLocation();
+  const username = location.state?.username || "User";
+  const navigate = useNavigate(); // 👈
+
   const defaultParis = {
     name: "Paris",
     goalAmount: 10000,
@@ -12,6 +16,13 @@ export default function ProfilePage({ savingsTargets = [] }) {
     name: "1k bike",
     goalAmount: 1000,
     currentAmount: 0,
+  };
+
+  const handleLogout = () => {
+    // Insert your sign-out logic here (e.g., Firebase signOut)
+    // signOut(auth);
+
+    navigate("/"); // Redirect to login page after logout
   };
 
   const parisTarget =
@@ -26,67 +37,65 @@ export default function ProfilePage({ savingsTargets = [] }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header with sign out */}
-      
       <div className="relative bg-blue-600 text-white py-8 px-4 mt-4 mb-4 mx-4 rounded-lg max-w-4xl mx-auto">
-  {/* Sign out button absolutely positioned */}
-  <button className="absolute top-8 right-4 bg-white text-blue-600 font-semibold py-2 px-4 rounded-lg shadow border hover:bg-gray-100 whitespace-nowrap">
-    Sign out →
-  </button>
+        {/* Sign out button */}
+        <button
+          onClick={handleLogout}
+          className="absolute top-8 right-4 bg-white text-blue-600 font-semibold py-2 px-4 rounded-lg shadow border hover:bg-gray-100 whitespace-nowrap"
+        >
+          Sign out →
+        </button>
 
-  {/* Centered Title */}
-  <h1 className="text-4xl font-bold text-center">Amy, let's save!</h1>
-</div>
-
+        {/* 👇 Dynamically put username */}
+        <h1 className="text-4xl font-bold text-center">
+          {username}, let's save!
+        </h1>
+      </div>
 
       {/* Content area with flexbox layout */}
       <div className="p-6 max-w-4xl mx-auto bg-white min-h-screen">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-blue-600">Profile Page</h1>
-          <Link
-            to="/"
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-          >
-            Back to Savings
-          </Link>
         </div>
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Left sidebar */}
           <div className="md:col-span-1">
-            <Link to="/" className="block mb-4">
-              <button className="w-full text-left bg-blue-500 text-white py-4 px-6 rounded-lg shadow hover:bg-blue-600">
-                Saving Goals
-              </button>
-            </Link>
+            <button
+              onClick={() => navigate("/SavingsApp", { state: { username } })}
+
+              className="w-full text-left bg-blue-500 text-white py-4 px-6 rounded-lg shadow hover:bg-blue-600"
+            >
+              Saving Goals
+            </button>
           </div>
 
           {/* Main content area */}
           <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Bank accounts card */}
             <div className="bg-white p-6 rounded-lg shadow text-gray-800">
-            <h2 className="text-xl font-semibold mb-4">
+              <h2 className="text-xl font-semibold mb-4">
                 Connected bank accounts
-            </h2>
+              </h2>
 
-            {/* Bank of America */}
-            <div className="text-sm mb-4 flex justify-between items-center">
+              {/* Bank of America */}
+              <div className="text-sm mb-4 flex justify-between items-center">
                 <span className="w-1/2">Bank of America</span>
                 <div className="flex items-center justify-between w-1/2">
-                <span className="mr-2">XXXXXXXX1234</span>
-                <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                  <span className="mr-2">XXXXXXXX1234</span>
+                  <div className="h-3 w-3 rounded-full bg-green-500"></div>
                 </div>
-            </div>
+              </div>
 
-            {/* Chase */}
-            <div className="text-sm flex justify-between items-center">
+              {/* Chase */}
+              <div className="text-sm flex justify-between items-center">
                 <span className="w-1/2">Chase</span>
                 <div className="flex items-center justify-between w-1/2">
-                <span className="mr-2">XXXXXXXX4567</span>
+                  <span className="mr-2">XXXXXXXX4567</span>
                 </div>
+              </div>
             </div>
-            </div>
-
 
             {/* 1k bike progress card */}
             <div className="bg-white p-6 rounded-lg shadow text-gray-800">
@@ -136,10 +145,12 @@ export default function ProfilePage({ savingsTargets = [] }) {
 
                   {/* Percentage text */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-bold">{parisPercentage}%</span>
+                    <span className="text-3xl font-bold">
+                      {parisPercentage}%
+                    </span>
                     <span className="text-xs text-center text-gray-600">
-                      Out of <br />
-                      ${parisTarget.goalAmount.toLocaleString()} goal
+                      Out of <br />${parisTarget.goalAmount.toLocaleString()}{" "}
+                      goal
                     </span>
                   </div>
                 </div>
