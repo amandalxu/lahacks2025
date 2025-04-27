@@ -34,7 +34,7 @@ function GeminiAIButton({ savingsTargets, monthlyIncome }) {
     // Simulate AI processing time
     setTimeout(() => {
       // Generate predictions based on current savings data
-      const predictions = savingsTargets.map(target => {
+      const predictions = savingsTargets.filter(target => !target.archived).map(target => {
         const monthlySavingRate = calculateMonthlySavingRate(target);
         const remainingAmount = target.goalAmount - target.currentAmount;
         const goalExceeded = target.currentAmount >= target.goalAmount;
