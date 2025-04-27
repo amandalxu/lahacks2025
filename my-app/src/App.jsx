@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import ProfilePage from './ProfilePage';
 
+// In SavingsApp.jsx, add this import at the top with other imports:
+import GeminiAIButton from './GeminiAIButton';
+
 function SavingsApp() {
   const [savingsTargets, setSavingsTargets] = useState(() => {
     const savedTargets = localStorage.getItem('savingsTargets');
@@ -114,12 +117,15 @@ function SavingsApp() {
     <div className="p-6 max-w-4xl mx-auto bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-blue-600">Virtual Piggy Bank</h1>
-        <Link
-          to="/Profile"
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-        >
-          Profile
-        </Link>
+        <div className="flex gap-2">
+          <GeminiAIButton savingsTargets={savingsTargets} monthlyIncome={monthlyIncome} />
+          <Link
+            to="/Profile"
+            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+          >
+            Profile
+          </Link>
+        </div>
       </div>
 
       {/* Income Section */}
