@@ -281,6 +281,7 @@ function SavingsApp() {
                   }
                   className="w-full p-2 border rounded"
                   required
+                  min={1}
                 />
               </div>
 
@@ -329,6 +330,7 @@ function SavingsApp() {
                       }
                       className="w-full p-2 border rounded"
                       placeholder="Enter percentage"
+                      min={0}
                     />
                   </div>
 
@@ -346,6 +348,7 @@ function SavingsApp() {
                       }
                       className="w-full p-2 border rounded"
                       placeholder="Enter fixed amount"
+                      min={0}
                     />
                   </div>
                 </>
@@ -378,6 +381,7 @@ function SavingsApp() {
                     className="w-full p-2 border rounded"
                     autoFocus
                     required
+                    min={0}
                   />
                 </div>
                 <div className="flex justify-end gap-2">
@@ -429,6 +433,7 @@ function SavingsApp() {
                       onChange={(e) => setEditFormData({...editFormData, goalAmount: e.target.value})}
                       className="w-full p-2 border rounded"
                       required
+                      min={1}
                     />
                   </div>
                   
@@ -467,6 +472,7 @@ function SavingsApp() {
                           onChange={(e) => setEditFormData({...editFormData, percentageOfIncome: e.target.value, fixedAmount: ''})}
                           className="w-full p-2 border rounded"
                           placeholder="Enter percentage"
+                          min={0}
                         />
                       </div>
                       
@@ -478,6 +484,7 @@ function SavingsApp() {
                           onChange={(e) => setEditFormData({...editFormData, fixedAmount: e.target.value, percentageOfIncome: ''})}
                           className="w-full p-2 border rounded"
                           placeholder="Enter fixed amount"
+                          min={0}
                         />
                       </div>
                     </>
