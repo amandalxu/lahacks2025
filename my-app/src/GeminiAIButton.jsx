@@ -1,9 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function GeminiAIButton({ savingsTargets, monthlyIncome }) {
   const [isOpen, setIsOpen] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const ITEMS_PER_SECTION = 3; // Number of savings targets per scrollable section
+  const panelRef = useRef(null);
+  const buttonRef = useRef(null);
+
+  // Handle click outside to close the panel
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (isOpen && 
+          panelRef.current && 
+          !panelRef.current.contains(event.target) &&
+          buttonRef.current && 
+          !buttonRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      // Remove event listener on cleanup
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const generateAnalysis = () => {
     setIsLoading(true);
@@ -107,12 +130,40 @@ function GeminiAIButton({ savingsTargets, monthlyIncome }) {
       recommendations.push("You're very close to your goal! Consider a final push to complete it.");
     }
     
+    // Add additional recommendations for demo purposes (to show scrollbar)
+    if (!goalExceeded && recommendations.length <= 2) {
+      recommendations.push("Setting up automatic transfers can help maintain consistent savings.");
+      recommendations.push("Review your budget for areas where you might reduce spending to accelerate savings.");
+    }
+    
     return recommendations;
   };
+
+  // Divide the analysis into three equal sections
+  const getSections = (analysisData) => {
+    if (!analysisData) return [[], [], []];
+    
+    const totalItems = analysisData.length;
+    const sectionSize = Math.max(Math.ceil(totalItems / 3), 1);
+    
+    return [
+      analysisData.slice(0, sectionSize),
+      analysisData.slice(sectionSize, sectionSize * 2),
+      analysisData.slice(sectionSize * 2)
+    ];
+  };
+
+  // Check if a section should scroll - now always true to ensure scrollable areas
+  const shouldScroll = (section) => {
+    return section && section.length > 0;
+  };
+
+  const sections = analysis ? getSections(analysis) : [[], [], []];
 
   return (
     <div className="relative">
       <button
+        ref={buttonRef}
         onClick={() => {
           if (!isOpen) {
             generateAnalysis();
@@ -137,56 +188,179 @@ function GeminiAIButton({ savingsTargets, monthlyIncome }) {
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 mt-2 w-96 md:w-120 bg-white shadow-xl rounded-lg overflow-hidden right-0">
-          <div className="p-4">
-            <h3 className="text-lg font-semibold mb-3">AI Savings Analysis</h3>
-            
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center py-6">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-                <p className="mt-3 text-gray-600">Analyzing your savings patterns...</p>
-              </div>
-            ) : analysis && analysis.length > 0 ? (
-              <div className="space-y-4">
-                {analysis.map((item, index) => (
-                  <div key={index} className="border rounded-lg p-3">
-                    <h4 className="font-semibold text-purple-600">{item.name}</h4>
-                    <p className="text-sm mb-1">
-                      Progress: {item.percentComplete.toFixed(1)}% (${item.currentAmount.toFixed(2)} of ${item.goalAmount.toFixed(2)})
-                    </p>
-                    <p className="text-sm mb-1">
-                      Monthly saving rate: ${item.monthlySavingRate.toFixed(2)}
-                    </p>
-                    <p className="text-sm mb-2">
-                      {item.goalExceeded
-                        ? "🎯 GOAL SMASHED! You're killin' it with your savings! 🎯"
-                        : item.daysToGoal === Infinity 
-                          ? "You need to start saving regularly to reach this goal." 
-                          : `Estimated time to goal: ${Math.floor(item.daysToGoal / 30)} months and ${item.daysToGoal % 30} days`}
-                    </p>
-                    
-                    {item.recommendations.length > 0 && (
-                      <div className="mt-2">
-                        <p className="text-xs font-semibold text-gray-600">Recommendations:</p>
-                        <ul className="text-xs text-gray-600 list-disc pl-4">
-                          {item.recommendations.map((rec, idx) => (
-                            <li key={idx}>{rec}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+        <div 
+          ref={panelRef}
+          className="absolute z-10 mt-2 w-96 md:w-120 bg-white shadow-xl rounded-lg overflow-hidden right-0"
+        >
+          {/* Fixed header */}
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold">AI Savings Analysis</h3>
+          </div>
+          
+          {/* Loading state */}
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-6">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+              <p className="mt-3 text-gray-600">Analyzing your savings patterns...</p>
+            </div>
+          ) : (
+            <>
+              {/* Section 1 */}
+              {sections[0].length > 0 && (
+                <div className="border-b border-gray-200">
+                  <h4 className="px-4 pt-3 pb-2 font-medium text-gray-700">Current Goals</h4>
+                  <div 
+                    className="px-4 max-h-60 overflow-y-auto"
+                    style={{ scrollbarWidth: 'thin' }}
+                  >
+                    <div className="space-y-3 pb-3">
+                      {sections[0].map((item, index) => (
+                        <div key={`section1-${index}`} className="border rounded-lg p-3">
+                          <h4 className="font-semibold text-purple-600">{item.name}</h4>
+                          <p className="text-sm mb-1">
+                            Progress: {item.percentComplete.toFixed(1)}% (${item.currentAmount.toFixed(2)} of ${item.goalAmount.toFixed(2)})
+                          </p>
+                          <p className="text-sm mb-1">
+                            Monthly saving rate: ${item.monthlySavingRate.toFixed(2)}
+                          </p>
+                          <p className="text-sm mb-2">
+                            {item.goalExceeded
+                              ? "🎯 GOAL SMASHED! You're killin' it with your savings! 🎯"
+                              : item.daysToGoal === Infinity 
+                                ? "You need to start saving regularly to reach this goal." 
+                                : `Estimated time to goal: ${Math.floor(item.daysToGoal / 30)} months and ${item.daysToGoal % 30} days`}
+                          </p>
+                          
+                          {item.recommendations.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs font-semibold text-gray-600">Recommendations:</p>
+                              <ul className="text-xs text-gray-600 list-disc pl-4">
+                                {item.recommendations.map((rec, idx) => (
+                                  <li key={idx} className="mb-1">{rec}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {/* Add padding if needed to ensure scrollability */}
+                      {sections[0].length < ITEMS_PER_SECTION && (
+                        <div className="py-2"></div>
+                      )}
+                    </div>
                   </div>
-                ))}
-                
-                <div className="text-xs text-gray-500 mt-2">
+                </div>
+              )}
+              
+              {/* Section 2 */}
+              {sections[1].length > 0 && (
+                <div className="border-b border-gray-200">
+                  <h4 className="px-4 pt-3 pb-2 font-medium text-gray-700">Upcoming Goals</h4>
+                  <div 
+                    className="px-4 max-h-60 overflow-y-auto"
+                    style={{ scrollbarWidth: 'thin' }}
+                  >
+                    <div className="space-y-3 pb-3">
+                      {sections[1].map((item, index) => (
+                        <div key={`section2-${index}`} className="border rounded-lg p-3">
+                          <h4 className="font-semibold text-purple-600">{item.name}</h4>
+                          <p className="text-sm mb-1">
+                            Progress: {item.percentComplete.toFixed(1)}% (${item.currentAmount.toFixed(2)} of ${item.goalAmount.toFixed(2)})
+                          </p>
+                          <p className="text-sm mb-1">
+                            Monthly saving rate: ${item.monthlySavingRate.toFixed(2)}
+                          </p>
+                          <p className="text-sm mb-2">
+                            {item.goalExceeded
+                              ? "🎯 GOAL SMASHED! You're killin' it with your savings! 🎯"
+                              : item.daysToGoal === Infinity 
+                                ? "You need to start saving regularly to reach this goal." 
+                                : `Estimated time to goal: ${Math.floor(item.daysToGoal / 30)} months and ${item.daysToGoal % 30} days`}
+                          </p>
+                          
+                          {item.recommendations.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs font-semibold text-gray-600">Recommendations:</p>
+                              <ul className="text-xs text-gray-600 list-disc pl-4">
+                                {item.recommendations.map((rec, idx) => (
+                                  <li key={idx} className="mb-1">{rec}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {/* Add padding if needed to ensure scrollability */}
+                      {sections[1].length < ITEMS_PER_SECTION && (
+                        <div className="py-2"></div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Section 3 */}
+              {sections[2].length > 0 && (
+                <div>
+                  <h4 className="px-4 pt-3 pb-2 font-medium text-gray-700">Long-Term Goals</h4>
+                  <div 
+                    className="px-4 max-h-60 overflow-y-auto"
+                    style={{ scrollbarWidth: 'thin' }}
+                  >
+                    <div className="space-y-3 pb-3">
+                      {sections[2].map((item, index) => (
+                        <div key={`section3-${index}`} className="border rounded-lg p-3">
+                          <h4 className="font-semibold text-purple-600">{item.name}</h4>
+                          <p className="text-sm mb-1">
+                            Progress: {item.percentComplete.toFixed(1)}% (${item.currentAmount.toFixed(2)} of ${item.goalAmount.toFixed(2)})
+                          </p>
+                          <p className="text-sm mb-1">
+                            Monthly saving rate: ${item.monthlySavingRate.toFixed(2)}
+                          </p>
+                          <p className="text-sm mb-2">
+                            {item.goalExceeded
+                              ? "🎯 GOAL SMASHED! You're killin' it with your savings! 🎯"
+                              : item.daysToGoal === Infinity 
+                                ? "You need to start saving regularly to reach this goal." 
+                                : `Estimated time to goal: ${Math.floor(item.daysToGoal / 30)} months and ${item.daysToGoal % 30} days`}
+                          </p>
+                          
+                          {item.recommendations.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs font-semibold text-gray-600">Recommendations:</p>
+                              <ul className="text-xs text-gray-600 list-disc pl-4">
+                                {item.recommendations.map((rec, idx) => (
+                                  <li key={idx} className="mb-1">{rec}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {/* Add padding if needed to ensure scrollability */}
+                      {sections[2].length < ITEMS_PER_SECTION && (
+                        <div className="py-2"></div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* No data message */}
+              {!analysis || analysis.length === 0 ? (
+                <div className="p-4">
+                  <p className="text-gray-600">No savings targets found to analyze.</p>
+                </div>
+              ) : (
+                <div className="px-4 py-3 text-xs text-gray-500">
                   Analysis is based on your current saving patterns and may change as your habits evolve.
                 </div>
-              </div>
-            ) : (
-              <p className="text-gray-600">No savings targets found to analyze.</p>
-            )}
-          </div>
-          <div className="bg-gray-50 px-4 py-3 flex justify-end">
+              )}
+            </>
+          )}
+          
+          {/* Fixed footer */}
+          <div className="bg-gray-50 px-4 py-3 flex justify-end border-t border-gray-200">
             <button
               onClick={() => setIsOpen(false)}
               className="text-sm text-gray-600 hover:text-gray-800"
