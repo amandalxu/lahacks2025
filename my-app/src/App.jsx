@@ -1,10 +1,30 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import ProfilePage from './ProfilePage';
-
-// In SavingsApp.jsx, add this import at the top with other imports:
 import GeminiAIButton from './GeminiAIButton';
 
+// NavBar Component - now without the AI button
+function NavBar() {
+  return (
+    <nav className="bg-white shadow-md py-4 px-6 sticky top-0 z-10">
+      <div className="max-w-4xl mx-auto flex justify-between items-center">
+        <Link to="/" className="text-2xl font-bold text-blue-600 hover:text-blue-800">
+          CHIPS TO SPARE
+        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            to="/Profile"
+            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 flex items-center"
+          >
+            Profile
+          </Link>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// SavingsApp Component
 function SavingsApp() {
   const [savingsTargets, setSavingsTargets] = useState(() => {
     const savedTargets = localStorage.getItem('savingsTargets');
@@ -188,18 +208,10 @@ function SavingsApp() {
   };
  
   return (
-    <div className="p-6 max-w-4xl mx-auto bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-blue-600">CHIPS TO SPARE</h1>
-        <div className="flex gap-2">
-          <GeminiAIButton savingsTargets={savingsTargets} monthlyIncome={monthlyIncome} />
-          <Link
-            to="/Profile"
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-          >
-            Profile
-          </Link>
-        </div>
+    <div className="max-w-4xl mx-auto">
+      {/* AI Button Section */}
+      <div className="flex justify-end mb-4">
+        <GeminiAIButton savingsTargets={savingsTargets} monthlyIncome={monthlyIncome} />
       </div>
 
       {/* Income Section */}
@@ -654,13 +666,33 @@ function SavingsApp() {
   );
 }
 
+// AIAssistant component for the ProfilePage
+function ProfileAIAssistant() {
+  return (
+    <div className="flex justify-end mb-4">
+      <GeminiAIButton />
+    </div>
+  );
+}
+
+// Main App Component with Router and Navigation
 export default function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<SavingsApp />} />
-        <Route path="/Profile" element={<ProfilePage />} />
-      </Routes>
+      <div className="bg-gray-50 min-h-screen">
+        <NavBar />
+        <div className="p-6">
+          <Routes>
+            <Route path="/" element={<SavingsApp />} />
+            <Route path="/Profile" element={
+              <>
+                <ProfileAIAssistant />
+                <ProfilePage />
+              </>
+            } />
+          </Routes>
+        </div>
+      </div>
     </Router>
   );
 }
