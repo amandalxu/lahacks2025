@@ -139,26 +139,14 @@ function GeminiAIButton({ savingsTargets, monthlyIncome }) {
     return recommendations;
   };
 
-  // Divide the analysis into three equal sections
+  // Divide the analysis into one section (since we are showing everything in Current Goals now)
   const getSections = (analysisData) => {
-    if (!analysisData) return [[], [], []];
+    if (!analysisData) return [[]];
     
-    const totalItems = analysisData.length;
-    const sectionSize = Math.max(Math.ceil(totalItems / 3), 1);
-    
-    return [
-      analysisData.slice(0, sectionSize),
-      analysisData.slice(sectionSize, sectionSize * 2),
-      analysisData.slice(sectionSize * 2)
-    ];
+    return [analysisData];
   };
 
-  // Check if a section should scroll - now always true to ensure scrollable areas
-  const shouldScroll = (section) => {
-    return section && section.length > 0;
-  };
-
-  const sections = analysis ? getSections(analysis) : [[], [], []];
+  const sections = analysis ? getSections(analysis) : [[]];
 
   return (
     <div className="relative">
@@ -205,13 +193,16 @@ function GeminiAIButton({ savingsTargets, monthlyIncome }) {
             </div>
           ) : (
             <>
-              {/* Section 1 */}
+              {/* Current Goals */}
               {sections[0].length > 0 && (
                 <div className="border-b border-gray-200">
                   <h4 className="px-4 pt-3 pb-2 font-medium text-gray-700">Current Goals</h4>
-                  <div 
-                    className="px-4 max-h-60 overflow-y-auto"
-                    style={{ scrollbarWidth: 'thin' }}
+                  <div
+                    className="px-4 overflow-y-auto"
+                    style={{
+                      maxHeight: `calc(2 * (3 * 72px + 12px))`, // Adjust height for two full sections based on 3 items per section
+                      scrollbarWidth: 'thin',
+                    }}
                   >
                     <div className="space-y-3 pb-3">
                       {sections[0].map((item, index) => (
@@ -243,109 +234,11 @@ function GeminiAIButton({ savingsTargets, monthlyIncome }) {
                           )}
                         </div>
                       ))}
-                      {/* Add padding if needed to ensure scrollability */}
-                      {sections[0].length < ITEMS_PER_SECTION && (
-                        <div className="py-2"></div>
-                      )}
                     </div>
                   </div>
                 </div>
               )}
-              
-              {/* Section 2 */}
-              {sections[1].length > 0 && (
-                <div className="border-b border-gray-200">
-                  <h4 className="px-4 pt-3 pb-2 font-medium text-gray-700">Upcoming Goals</h4>
-                  <div 
-                    className="px-4 max-h-60 overflow-y-auto"
-                    style={{ scrollbarWidth: 'thin' }}
-                  >
-                    <div className="space-y-3 pb-3">
-                      {sections[1].map((item, index) => (
-                        <div key={`section2-${index}`} className="border rounded-lg p-3">
-                          <h4 className="font-semibold text-purple-600">{item.name}</h4>
-                          <p className="text-sm mb-1">
-                            Progress: {item.percentComplete.toFixed(1)}% (${item.currentAmount.toFixed(2)} of ${item.goalAmount.toFixed(2)})
-                          </p>
-                          <p className="text-sm mb-1">
-                            Monthly saving rate: ${item.monthlySavingRate.toFixed(2)}
-                          </p>
-                          <p className="text-sm mb-2">
-                            {item.goalExceeded
-                              ? "🎯 GOAL SMASHED! You're killin' it with your savings! 🎯"
-                              : item.daysToGoal === Infinity 
-                                ? "You need to start saving regularly to reach this goal." 
-                                : `Estimated time to goal: ${Math.floor(item.daysToGoal / 30)} months and ${item.daysToGoal % 30} days`}
-                          </p>
-                          
-                          {item.recommendations.length > 0 && (
-                            <div className="mt-2">
-                              <p className="text-xs font-semibold text-gray-600">Recommendations:</p>
-                              <ul className="text-xs text-gray-600 list-disc pl-4">
-                                {item.recommendations.map((rec, idx) => (
-                                  <li key={idx} className="mb-1">{rec}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                      {/* Add padding if needed to ensure scrollability */}
-                      {sections[1].length < ITEMS_PER_SECTION && (
-                        <div className="py-2"></div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Section 3 */}
-              {sections[2].length > 0 && (
-                <div>
-                  <h4 className="px-4 pt-3 pb-2 font-medium text-gray-700">Long-Term Goals</h4>
-                  <div 
-                    className="px-4 max-h-60 overflow-y-auto"
-                    style={{ scrollbarWidth: 'thin' }}
-                  >
-                    <div className="space-y-3 pb-3">
-                      {sections[2].map((item, index) => (
-                        <div key={`section3-${index}`} className="border rounded-lg p-3">
-                          <h4 className="font-semibold text-purple-600">{item.name}</h4>
-                          <p className="text-sm mb-1">
-                            Progress: {item.percentComplete.toFixed(1)}% (${item.currentAmount.toFixed(2)} of ${item.goalAmount.toFixed(2)})
-                          </p>
-                          <p className="text-sm mb-1">
-                            Monthly saving rate: ${item.monthlySavingRate.toFixed(2)}
-                          </p>
-                          <p className="text-sm mb-2">
-                            {item.goalExceeded
-                              ? "🎯 GOAL SMASHED! You're killin' it with your savings! 🎯"
-                              : item.daysToGoal === Infinity 
-                                ? "You need to start saving regularly to reach this goal." 
-                                : `Estimated time to goal: ${Math.floor(item.daysToGoal / 30)} months and ${item.daysToGoal % 30} days`}
-                          </p>
-                          
-                          {item.recommendations.length > 0 && (
-                            <div className="mt-2">
-                              <p className="text-xs font-semibold text-gray-600">Recommendations:</p>
-                              <ul className="text-xs text-gray-600 list-disc pl-4">
-                                {item.recommendations.map((rec, idx) => (
-                                  <li key={idx} className="mb-1">{rec}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                      {/* Add padding if needed to ensure scrollability */}
-                      {sections[2].length < ITEMS_PER_SECTION && (
-                        <div className="py-2"></div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-              
+
               {/* No data message */}
               {!analysis || analysis.length === 0 ? (
                 <div className="p-4">
