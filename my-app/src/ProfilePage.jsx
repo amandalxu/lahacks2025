@@ -1,23 +1,16 @@
-import React from "react";
+import { React, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import Navbar from './Navbar'; // Import the new Navbar component
 
-export default function ProfilePage({ savingsTargets = [] }) {
+export default function ProfilePage({ }) {
   const location = useLocation();
   const username = location.state?.username || "User";
   const navigate = useNavigate(); // 👈
-
-  const defaultParis = {
-    name: "Paris",
-    goalAmount: 10000,
-    currentAmount: 3000,
-  };
-
-  const defaultBike = {
-    name: "1k bike",
-    goalAmount: 1000,
-    currentAmount: 0,
-  };
+  
+  const [savingsTargets, setSavingsTargets] = useState(() => {
+    const savedTargets = localStorage.getItem('savingsTargets');
+    return savedTargets ? JSON.parse(savedTargets) : [];
+  });
 
   const handleLogout = () => {
     // Insert your sign-out logic here (e.g., Firebase signOut)
@@ -25,15 +18,6 @@ export default function ProfilePage({ savingsTargets = [] }) {
 
     navigate("/"); // Redirect to login page after logout
   };
-
-  const parisTarget =
-    savingsTargets.find((target) => target?.name === "Paris") || defaultParis;
-  const bikeTarget =
-    savingsTargets.find((target) => target?.name === "1k bike") || defaultBike;
-
-  const parisPercentage = Math.floor(
-    (parisTarget.currentAmount / parisTarget.goalAmount) * 100
-  );
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -100,74 +84,67 @@ export default function ProfilePage({ savingsTargets = [] }) {
               </div>
             </div>
 
-            {/* 1k bike progress card */}
-            <div className="bg-white p-6 rounded-lg shadow text-gray-800">
-              <h2 className="text-xl font-semibold mb-4">Progress - 1k bike</h2>
-              <p className="text-sm text-gray-500">
-                No progress data visualized yet.
-              </p>
-            </div>
-
-            {/* Paris progress card */}
-            <div className="bg-white p-6 rounded-lg shadow text-gray-800">
-              <h2 className="text-xl font-semibold mb-4">Progress - Paris</h2>
-
-              <div className="flex items-center">
-                <div className="relative inline-block w-32 h-32">
-                  {/* Increased viewBox size to accommodate r=50 with stroke */}
-                  <svg
-                    className="absolute inset-0 w-full h-full -rotate-90 transform"
-                    viewBox="0 0 120 120"
-                  >
-                    {/* Background circle - keeping r=50 */}
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="55"
-                      fill="none"
-                      stroke="#D1D5DB" // Light gray color
-                      strokeWidth="8"
-                      strokeDasharray="1" // 2 * PI * 50
-                      strokeDashoffset="0"
-                      strokeLinecap="round"
-                    />
-
-                    {/* Current progress - keeping r=50 */}
-                    <circle
-                      cx="60"
-                      cy="60"
-                      r="55"
-                      fill="none"
-                      stroke="#3B82F6" // Blue color
-                      strokeWidth="8"
-                      strokeDasharray="345" // 2 * PI * 55
-                      strokeDashoffset={345 - (345 * parisPercentage) / 100}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-
-                  {/* Percentage text */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-bold">
-                      {parisPercentage}%
-                    </span>
-                    <span className="text-xs text-center text-gray-600">
-                      Out of <br />${parisTarget.goalAmount.toLocaleString()}{" "}
-                      goal
-                    </span>
-                  </div>
-                </div>
-
-                <div className="ml-8">
+            {savingsTargets.map(target => (
+              <div key={target.id} className="bg-white p-6 rounded-lg shadow text-gray-800">
+                <h2 className="text-xl font-semibold mb-4">{target.name}</h2>
                   <div className="flex items-center">
-                    <div className="w-4 h-4 bg-blue-600 mr-2"></div>
-                    <span>
-                      Savings: ${parisTarget.currentAmount.toLocaleString()}
-                    </span>
+                    <div className="relative inline-block w-32 h-32">
+                      {/* Increased viewBox size to accommodate r=50 with stroke */}
+                      <svg
+                        className="absolute inset-0 w-full h-full -rotate-90 transform"
+                        viewBox="0 0 120 120"
+                      >
+                        {/* Background circle - keeping r=50 */}
+                        <circle
+                          cx="60"
+                          cy="60"
+                          r="55"
+                          fill="none"
+                          stroke="#D1D5DB" // Light gray color
+                          strokeWidth="8"
+                          strokeDasharray="1" // 2 * PI * 50
+                          strokeDashoffset="0"
+                          strokeLinecap="round"
+                        />
+
+                        {/* Current progress - keeping r=50 */}
+                        <circle
+                          cx="60"
+                          cy="60"
+                          r="55"
+                          fill="none"
+                          stroke="#3B82F6" // Blue color
+                          strokeWidth="8"
+                          strokeDasharray="345" // 2 * PI * 55
+                          strokeDashoffset={345 - (345 * Math.floor((target.currentAmount / target.goalAmount) * 100)) / 100}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+
+                      {/* Percentage text */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-3xl font-bold">
+                          {Math.floor((target.currentAmount / target.goalAmount) * 100)}%
+                        </span>
+                        <span className="text-xs text-center text-gray-600">
+                          Out of <br />${target.goalAmount.toLocaleString()}{" "}
+                          goal
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="ml-8">
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 bg-blue-600 mr-2"></div>
+                        <span>
+                          Savings: ${target.currentAmount.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              ))
+            }
 
             {/* Placeholder / future feature card */}
             <div className="bg-white p-6 rounded-lg shadow text-gray-800">
