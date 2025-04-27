@@ -190,7 +190,7 @@ function SavingsApp() {
   return (
     <div className="p-6 max-w-4xl mx-auto bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-blue-600">Virtual Piggy Bank</h1>
+        <h1 className="text-3xl font-bold text-blue-600">CHIPS TO SPARE</h1>
         <div className="flex gap-2">
           <GeminiAIButton savingsTargets={savingsTargets} monthlyIncome={monthlyIncome} />
           <Link
