@@ -70,11 +70,15 @@ function SavingsApp() {
    
     if (isNaN(amount) || amount <= 0) return;
    
-    setSavingsTargets(savingsTargets.map(target =>
-      target.id === depositTarget.id
-        ? { ...target, currentAmount: target.currentAmount + amount }
-        : target
-    ));
+    setSavingsTargets(savingsTargets.map(target => {
+      if (target.id === depositTarget.id) {
+        if (target.currentAmount + amount >= target.goalAmount) {
+          console.log("Progress towards this savings target is complete! Would you like to archive this target and redirect surplus savings to another target, or would you like to continue saving towards this target?");
+        }
+        return { ...target, currentAmount: target.currentAmount + amount };
+      }
+      return target;
+    }));
    
     setDepositTarget(null);
     setDepositAmount('');
@@ -92,7 +96,7 @@ function SavingsApp() {
           // and redirect surplus savings to another target, or continue saving towards 
           // this target
           if (target.currentAmount + depositAmount >= target.goalAmount) {
-            console.log("Progress towards this savings target is complete! Would you like to archive this target and redirect surplus savings to another target, or would you like to continue saving towards this target?")
+            console.log("Progress towards this savings target is complete! Would you like to archive this target and redirect surplus savings to another target, or would you like to continue saving towards this target?");
           }
         } else if (target.fixedAmount > 0) {
           depositAmount = target.fixedAmount;
@@ -295,7 +299,7 @@ function SavingsApp() {
 
         {/* Deposit Modal */}
         {depositTarget && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-20">
             <div className="bg-white p-6 rounded-lg max-w-md w-full">
               <h3 className="text-xl font-semibold mb-4">
                 Deposit to {depositTarget.name}
@@ -345,8 +349,8 @@ function SavingsApp() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {savingsTargets.filter(target => !target.archived).map((target) => (
-              <div key={target.id} className="bg-white p-4 rounded-lg shadow">
-                <div className="flex justify-between items-start mb-2 hover:*:visible">
+              <div key={target.id} className="bg-white p-4 rounded-lg shadow hover:**:visible">
+                <div className="flex justify-between items-start mb-2">
                   <h3 className="text-lg font-semibold">{target.name}</h3>
                   <div className="flex gap-2 invisible">
                     <button
@@ -445,52 +449,50 @@ function SavingsApp() {
      
       {/* Archived Targets Dashboard */}
       {savingsTargets.filter(target => target.archived).length > 0 && (
-        <div>
-          <div className="my-8">
-            <div className="flex mb-4">
-            <h2 className="text-xl font-semibold">Your Archived Targets</h2>
-          </div>
-       
-          {/* Targets List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {savingsTargets.filter(target => target.archived).map(target => (
-              <div key={target.id} className="bg-white p-4 rounded-lg shadow">
-                <div className="flex justify-between items-start mb-2 hover:*:visible">
-                  <h3 className="text-lg font-semibold">{target.name}</h3>
-                  <div className="flex gap-2 invisible">
-                    <button
-                      onClick={() => restoreTarget(target.id)}
-                      className="text-sm bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600"
-                    >
-                      Restore
-                    </button>
-                    <button
-                      onClick={() => deleteTarget(target.id)}
-                      className="text-sm bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-               
-                <div className="mb-2">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Progress: {calculateProgress(target).toFixed(1)}%</span>
-                    <span>${target.currentAmount.toFixed(2)} / ${target.goalAmount.toFixed(2)}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                      className="h-2.5 rounded-full"
-                      style={{
-                        width: `${Math.min(calculateProgress(target), 100)}%`,
-                        backgroundColor: target.color
-                      }}
-                    ></div>
-                  </div>
+        <div className="my-8">
+          <div className="flex mb-4">
+          <h2 className="text-xl font-semibold">Your Archived Targets</h2>
+        </div>
+      
+        {/* Targets List */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {savingsTargets.filter(target => target.archived).map(target => (
+            <div key={target.id} className="bg-white p-4 rounded-lg shadow opacity-50 hover:opacity-100 hover:**:visible">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="text-lg font-semibold">{target.name}</h3>
+                <div className="flex gap-2 invisible">
+                  <button
+                    onClick={() => restoreTarget(target.id)}
+                    className="text-sm bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600"
+                  >
+                    Restore
+                  </button>
+                  <button
+                    onClick={() => deleteTarget(target.id)}
+                    className="text-sm bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
+              
+              <div className="mb-2">
+                <div className="flex justify-between text-sm mb-1">
+                  <span>Progress: {calculateProgress(target).toFixed(1)}%</span>
+                  <span>${target.currentAmount.toFixed(2)} / ${target.goalAmount.toFixed(2)}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div
+                    className="h-2.5 rounded-full"
+                    style={{
+                      width: `${Math.min(calculateProgress(target), 100)}%`,
+                      backgroundColor: target.color
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
       )}
