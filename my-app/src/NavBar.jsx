@@ -11,13 +11,17 @@ function Navbar({ username }) {
           <h1 className="text-2xl font-bold">CHIPS TO SPARE</h1>
         </div>
         <div className="flex items-center">
-          {username && <span className="hidden md:inline font-bold mr-6">Welcome, {username}</span>}
-          <button
-            onClick={() => navigate("/Profile", { state: { username } })}
-            className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
-          >
-            Profile
-          </button>
+          {username && (
+            <>
+              <span className="hidden md:inline font-bold mr-6">Welcome, {username}</span>
+              <button
+                onClick={() => navigate("/Profile", { state: { username } })}
+                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
+              >
+                Profile
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>
