@@ -26,11 +26,13 @@ export default function ProfilePage({ savingsTargets = [] }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header with sign out */}
-      <div className="flex justify-end p-4">
-        <button className="bg-white py-2 px-4 rounded-lg shadow border hover:bg-gray-100">
-          Sign out →
-        </button>
-      </div>
+      
+       <div className="absolute top-14 right-60 z-10">
+          <button className="bg-white py-2 px-4 rounded-lg shadow border hover:bg-gray-100">
+            Sign out →
+          </button>
+        </div>
+      
 
       {/* Page title */}
       <div className="bg-blue-600 text-white py-8 px-4 mt-6 mb-4 mx-4 rounded-lg max-w-4xl mx-auto">
