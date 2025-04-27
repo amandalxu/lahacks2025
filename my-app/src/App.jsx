@@ -197,7 +197,7 @@ function SavingsApp() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-blue-600">CHIPS TO SPARE</h1>
         <div className="flex gap-2">
-          <GeminiAIButton savingsTargets={savingsTargets} monthlyIncome={monthlyIncome} />
+          {/* <GeminiAIButton savingsTargets={savingsTargets} monthlyIncome={monthlyIncome} /> */}
           {/* <Link
             to="/Profile"
             className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
@@ -237,13 +237,18 @@ function SavingsApp() {
       {/* Targets Dashboard */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Your Savings Targets</h2>
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-          >
-            {showAddForm ? "Cancel" : "Add New Target"}
-          </button>
+          <h2 className="text-xl font-semibold">Your Active Savings Targets</h2>
+          <div className="flex gap-2">
+            {showAddForm == false && 
+              <GeminiAIButton savingsTargets={savingsTargets} monthlyIncome={monthlyIncome} />
+            }
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+            >
+              {showAddForm ? "Cancel" : "Add New Target"}
+            </button>
+          </div>
         </div>
 
         {/* Add New Target Form */}
@@ -500,10 +505,10 @@ function SavingsApp() {
         )}
        
         {/* Targets List */}
-        {savingsTargets.length === 0 ? (
+        {savingsTargets.filter(target => !target.archived).length === 0 ? (
           <div className="text-center p-8 bg-white rounded-lg shadow">
             <p className="text-gray-500">
-              You don't have any savings targets yet. Add one to get started!
+              You don't have any active savings targets yet. Add one to get started!
             </p>
           </div>
         ) : (
@@ -601,7 +606,7 @@ function SavingsApp() {
             </div>
             <div className="p-3 bg-purple-100 rounded">
               <p className="text-sm text-purple-800">Active Targets</p>
-              <p className="text-2xl font-bold">{savingsTargets.length}</p>
+              <p className="text-2xl font-bold">{savingsTargets.filter(target => !target.archived).length}</p>
             </div>
             <div className="p-3 bg-orange-100 rounded">
               <p className="text-sm text-orange-800">Completed Targets</p>
